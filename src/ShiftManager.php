@@ -17,7 +17,7 @@ class ShiftManager
 
     public function saveShift(array $shiftData): void
     {
-        if (!isset($shiftData['uuid'])) {
+        if (!isset($shiftData['shift_uuid'])) {
             $this->logger->error('Invalid shift data: missing uuid', [
                 'shift_data' => $shiftData
             ]);
@@ -25,7 +25,7 @@ class ShiftManager
         }
 
         $this->logger->info('Saving shift', [
-            'uuid' => $shiftData['uuid'],
+            'uuid' => $shiftData['shift_uuid'],
             'has_clock_in' => isset($shiftData['actual_clock_in']),
             'clock_in_time' => $shiftData['actual_clock_in'] ?? 'none'
         ]);
@@ -45,7 +45,7 @@ class ShiftManager
             }
 
             $params = [
-                'uuid' => $shiftData['uuid'],
+                'uuid' => $shiftData['shift_uuid'],
                 'clock_in' => $shiftData['actual_clock_in'] ?? null,
                 'raw_data' => $rawData
             ];
@@ -53,12 +53,12 @@ class ShiftManager
             $stmt->execute($params);
 
             $this->logger->debug('Shift saved successfully', [
-                'uuid' => $shiftData['uuid'],
+                'uuid' => $shiftData['shift_uuid'],
                 'affected_rows' => $stmt->rowCount()
             ]);
         } catch (\PDOException $e) {
             $this->logger->error('Database error while saving shift', [
-                'uuid' => $shiftData['uuid'],
+                'uuid' => $shiftData['shift_uuid'],
                 'error' => $e->getMessage(),
                 'code' => $e->getCode()
             ]);
