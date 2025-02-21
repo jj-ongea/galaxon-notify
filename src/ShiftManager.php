@@ -260,10 +260,9 @@ class ShiftManager
             'params' => [
                 'employee_name' => $rawData['user_name'],
                 'venue_name' => $rawData['venue_name'],
-                'clock_in' => '<p>Our officer, ' . $rawData['user_name'] . ' has clocked in at <u>' . 
-                    (new \DateTime())->setTimestamp($rawData['actual_clock_in'])->format('g:ia') . 
-                    '</u> ' . (new \DateTime())->setTimestamp($rawData['actual_clock_in'])->format('jS F Y') . 
-                    ' with Galaxon at ' . $rawData['venue_name'] . ' for their shift, view the shift details below.</p>',
+                'clock_time' => 
+                    (new \DateTime())->setTimestamp($rawData['actual_clock_in'])->format('g:ia'),
+                'clock_date' => (new \DateTime())->setTimestamp($rawData['actual_clock_in'])->format('jS F Y'),
                 'shift' => (new \DateTime($rawData['time_from']))->format('jS F Y h:ia') . ' - ' . (new \DateTime($rawData['time_to']))->format('h:ia'),
                 'daytime' => $timeOfDay,
                 'controller' => $_POST['controller'] ?? 'Unknown'

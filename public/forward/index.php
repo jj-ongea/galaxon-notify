@@ -78,7 +78,7 @@ $shiftData = $shift ? json_decode($shift['raw_data'], true) : null;
         <?php elseif ($pending): ?>
             <div class="pending">
                 <h2>Forwarding to: <?= htmlspecialchars($email) ?></h2>
-                <p>This action will complete in <span id="countdown">30</span> seconds</p>
+                <p>This action will complete in <span id="countdown">15</span> seconds</p>
                 <form method="post" class="undo-form">
                     <button type="button" class="btn-undo" onclick="window.location.href='?token=<?= htmlspecialchars($token) ?>'">Cancel</button>
                 </form>
