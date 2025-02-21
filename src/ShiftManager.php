@@ -231,6 +231,11 @@ class ShiftManager
 
     public function forwardClockInEmail(array $shiftData, string $forwardEmail): void
     {
+        if (empty($forwardEmail)) {
+            $this->logger->error('Forward email is empty');
+            throw new \InvalidArgumentException('Forward email address is required');
+        }
+
         $rawData = json_decode($shiftData['raw_data'], true);
         
         $this->logger->info('Starting to forward email', [

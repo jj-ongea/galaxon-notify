@@ -104,7 +104,9 @@ $shiftData = $shift ? json_decode($shift['raw_data'], true) : null;
                 <input type="hidden" name="action" value="forward">
                 <div class="form-group">
                     <label for="email">Forward to Email:</label>
-                    <input type="email" id="email" name="email" required disabled
+                    <input type="email" disabled
+                           value="<?= htmlspecialchars(Config::getInstance()->get('DEFAULT_FORWARD_EMAIL')) ?>">
+                    <input type="hidden" name="email" 
                            value="<?= htmlspecialchars(Config::getInstance()->get('DEFAULT_FORWARD_EMAIL')) ?>">
                 </div>
                 <div class="form-group">
