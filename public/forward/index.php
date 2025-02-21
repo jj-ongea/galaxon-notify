@@ -127,7 +127,7 @@ $shiftData = $shift ? json_decode($shift['raw_data'], true) : null;
     <script>
         // Only start countdown if we're in pending state
         <?php if ($pending): ?>
-        let timeLeft = 30;
+        let timeLeft = 15;
         const countdownElement = document.getElementById('countdown');
         const confirmForm = document.getElementById('confirmForm');
         
