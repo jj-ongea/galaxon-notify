@@ -10,8 +10,11 @@ $shiftManager = new ShiftManager();
 
 // Get today's date at midnight as start date
 $startDate = date('Y-m-d 00:00:00');
+$startTimestamp = strtotime($startDate);
+
 // Set end date to 23:59:00 of the same day
 $endDate = date('Y-m-d 23:59:00');
+$endTimestamp = strtotime($endDate);
 
 $logger->info('Starting shift fetch', [
     'startDate' => $startDate,
@@ -19,7 +22,7 @@ $logger->info('Starting shift fetch', [
 ]);
 
 try {
-    $shiftManager->processNewShifts($startDate, $endDate);
+    $shiftManager->processNewShifts($startTimestamp, $endTimestamp);
     $logger->info('Successfully processed shifts');
 } catch (Exception $e) {
     $logger->error('Error processing shifts', [
