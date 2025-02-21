@@ -260,7 +260,7 @@ class ShiftManager
             'params' => [
                 'employee_name' => $rawData['user_name'],
                 'venue_name' => $rawData['venue_name'],
-                'clock_in' => (new \DateTime())->setTimestamp($rawData['actual_clock_in'])->format('jS F Y h:ia'),
+                'clock_in' => (new \DateTime())->setTimestamp($rawData['actual_clock_in'])->format('h:ia jS F Y'),
                 'shift' => (new \DateTime($rawData['time_from']))->format('jS F Y h:ia') . ' - ' . (new \DateTime($rawData['time_to']))->format('h:ia'),
                 'daytime' => $timeOfDay,
                 'controller' => $_POST['controller'] ?? 'Unknown'
@@ -271,7 +271,7 @@ class ShiftManager
                     'name' => 'Recipient'
                 ]
             ],
-            'subject' => 'Book on confirmation for ' . (new \DateTime($rawData['time_from']))->format('h:ia') . ' at ' . $rawData['venue_name'],
+            'subject' => 'Book on confirmation for ' . (new \DateTime($rawData['time_from']))->format('H:i') . ' at ' . $rawData['venue_name'],
             'templateId' => 512
         ];
 
