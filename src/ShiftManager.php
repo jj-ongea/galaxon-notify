@@ -46,14 +46,17 @@ class ShiftManager
 
             $params = [
                 'uuid' => $shiftData['shift_uuid'],
-                'clock_in' => $shiftData['actual_clock_in'] ?? null,
+                'clock_in' => isset($shiftData['actual_clock_in']) ? 
+                    date('Y-m-d H:i:s', $shiftData['actual_clock_in']) : null,
                 'raw_data' => $rawData
             ];
 
             $this->logger->debug('Executing SQL', [
                 'params' => $params,
                 'actual_clock_in_exists' => isset($shiftData['actual_clock_in']),
-                'actual_clock_in_value' => $shiftData['actual_clock_in'] ?? 'null'
+                'actual_clock_in_value' => $shiftData['actual_clock_in'] ?? 'null',
+                'actual_clock_in_formatted' => isset($shiftData['actual_clock_in']) ? 
+                    date('Y-m-d H:i:s', $shiftData['actual_clock_in']) : 'null'
             ]);
 
             $stmt->execute($params);
