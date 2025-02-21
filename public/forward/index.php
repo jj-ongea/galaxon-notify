@@ -3,6 +3,8 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 use ParimIntegration\Database;
 use ParimIntegration\Logger;
+use ParimIntegration\ShiftManager;
+use ParimIntegration\Config;
 
 $logger = Logger::getLogger('forward-page');
 $db = Database::getInstance();
@@ -10,10 +12,12 @@ $db = Database::getInstance();
 $token = $_GET['token'] ?? '';
 $action = $_POST['action'] ?? '';
 $email = $_POST['email'] ?? '';
+$confirm = $_POST['confirm'] ?? false;
 
 $shift = null;
 $error = null;
 $success = null;
+$pending = null;
 
 if ($token) {
     $stmt = $db->getPdo()->prepare(
@@ -31,9 +35,21 @@ if ($token) {
     }
 }
 
-if ($action === 'forward' && $shift && $shift['is_valid']) {
-    // Process forwarding logic here
-    $success = "Email forwarded successfully!";
+if ($action === 'forward' && $shift && $shift['is_valid'] && !$confirm) {
+    $pending = true;
+} else if ($action === 'forward' && $shift && $shift['is_valid'] && $confirm) {
+    try {
+        $shiftManager = new ShiftManager();
+        $shiftManager->forwardClockInEmail($shift, $email);
+        $success = "Email has been forwarded successfully to " . htmlspecialchars($email);
+    } catch (\Exception $e) {
+        $logger->error('Failed to forward email', [
+            'error' => $e->getMessage(),
+            'shift_uuid' => $shift['shift_uuid'],
+            'email' => $email
+        ]);
+        $error = "Failed to forward email. Please try again later.";
+    }
 }
 
 $shiftData = $shift ? json_decode($shift['raw_data'], true) : null;
@@ -54,8 +70,23 @@ $shiftData = $shift ? json_decode($shift['raw_data'], true) : null;
             <div class="error"><?= htmlspecialchars($error) ?></div>
         <?php elseif ($success): ?>
             <div class="success">
+                <h2>Success!</h2>
                 <?= htmlspecialchars($success) ?>
-                <div class="timer">Redirecting in <span id="countdown">30</span> seconds...</div>
+                <p class="success-details">The notification has been forwarded to the specified email address.</p>
+                <div class="check-mark">✓</div>
+            </div>
+        <?php elseif ($pending): ?>
+            <div class="pending">
+                <h2>Forwarding to: <?= htmlspecialchars($email) ?></h2>
+                <p>This action will complete in <span id="countdown">30</span> seconds</p>
+                <form method="post" class="undo-form">
+                    <button type="button" class="btn-undo" onclick="window.location.href='?token=<?= htmlspecialchars($token) ?>'">Cancel</button>
+                </form>
+                <form method="post" id="confirmForm" style="display: none;">
+                    <input type="hidden" name="action" value="forward">
+                    <input type="hidden" name="email" value="<?= htmlspecialchars($email) ?>">
+                    <input type="hidden" name="confirm" value="1">
+                </form>
             </div>
         <?php elseif ($shiftData): ?>
             <h1>Forward Clock-in Notification</h1>
@@ -72,18 +103,20 @@ $shiftData = $shift ? json_decode($shift['raw_data'], true) : null;
                 <input type="hidden" name="action" value="forward">
                 <div class="form-group">
                     <label for="email">Forward to Email:</label>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="email" required 
+                           value="<?= htmlspecialchars(Config::getInstance()->get('DEFAULT_FORWARD_EMAIL')) ?>">
                 </div>
                 <button type="submit" class="btn-forward">Forward Notification</button>
             </form>
-
-            <div class="timer">This link will expire in <span id="countdown">30</span> seconds</div>
         <?php endif; ?>
     </div>
 
     <script>
+        // Only start countdown if we're in pending state
+        <?php if ($pending): ?>
         let timeLeft = 30;
         const countdownElement = document.getElementById('countdown');
+        const confirmForm = document.getElementById('confirmForm');
         
         const countdown = setInterval(() => {
             timeLeft--;
@@ -91,9 +124,10 @@ $shiftData = $shift ? json_decode($shift['raw_data'], true) : null;
             
             if (timeLeft <= 0) {
                 clearInterval(countdown);
-                window.location.href = '/';
+                confirmForm.submit();
             }
         }, 1000);
+        <?php endif; ?>
     </script>
 </body>
 </html> 

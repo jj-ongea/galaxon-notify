@@ -8,6 +8,8 @@ CREATE TABLE shifts (
     raw_data JSON,
     forward_token VARCHAR(32) NULL,
     forward_expires_at DATETIME NULL,
+    forward_email VARCHAR(255) NULL,
+    forwarded_at DATETIME NULL,
     INDEX idx_actual_clock_in (actual_clock_in),
     INDEX idx_processed (processed),
     INDEX idx_forward_token (forward_token)

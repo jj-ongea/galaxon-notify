@@ -184,7 +184,7 @@ class ShiftManager
                     }
                     return 'on time';
                 })(),
-                'link' => 'https://galaxon.co.uk/notify/forward/?token=' . $forwardToken
+                'link' => 'https://galaxon.co.uk/notify/public/forward/?token=' . $forwardToken
             ],
             'to' => [
                 [
@@ -227,5 +227,61 @@ class ShiftManager
         $this->logger->info('Clock-in email sent successfully', [
             'shift_uuid' => $shiftData['shift_uuid']
         ]);
+    }
+
+    public function forwardClockInEmail(array $shiftData, string $forwardEmail): void
+    {
+        $rawData = json_decode($shiftData['raw_data'], true);
+        
+        $emailData = [
+            'replyTo' => [
+                'email' => 'info@galaxon.co.uk',
+                'name' => 'Galaxon'
+            ],
+            'params' => [
+                'employee_name' => $rawData['user_name'],
+                'venue_name' => $rawData['venue_name'],
+                'clock_in' => (new \DateTime())->setTimestamp($rawData['actual_clock_in'])->format('jS F Y h:ia'),
+                'shift' => (new \DateTime($rawData['time_from']))->format('jS F Y h:ia') . ' - ' . (new \DateTime($rawData['time_to']))->format('h:ia')
+            ],
+            'to' => [
+                [
+                    'email' => $forwardEmail,
+                    'name' => 'Recipient'
+                ]
+            ],
+            'subject' => 'Book on confirmation for ' . (new \DateTime($rawData['time_from']))->format('h:ia') . ' at ' . $rawData['venue_name'],
+            'templateId' => 512
+        ];
+
+        $ch = curl_init('https://api.brevo.com/v3/smtp/email');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => [
+                'accept: application/json',
+                'api-key: ' . $this->config->get('BREVO_API_KEY'),
+                'content-type: application/json'
+            ],
+            CURLOPT_POSTFIELDS => json_encode($emailData)
+        ]);
+
+        $response = curl_exec($ch);
+        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($error || $statusCode !== 201) {
+            throw new \RuntimeException('Failed to forward email: ' . ($error ?: $response));
+        }
+
+        // Update the database to record the forward
+        $stmt = $this->db->getPdo()->prepare(
+            "UPDATE shifts 
+             SET forward_email = ?, 
+                 forwarded_at = NOW() 
+             WHERE shift_uuid = ?"
+        );
+        $stmt->execute([$forwardEmail, $shiftData['shift_uuid']]);
     }
 } 
