@@ -1,4 +1,3 @@
-
 CREATE TABLE shifts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     shift_uuid VARCHAR(36) NOT NULL UNIQUE,
@@ -7,8 +6,11 @@ CREATE TABLE shifts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     raw_data JSON,
+    forward_token VARCHAR(32) NULL,
+    forward_expires_at DATETIME NULL,
     INDEX idx_actual_clock_in (actual_clock_in),
-    INDEX idx_processed (processed)
+    INDEX idx_processed (processed),
+    INDEX idx_forward_token (forward_token)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE api_logs (

@@ -151,6 +151,16 @@ class ShiftManager
     {
         $rawData = json_decode($shiftData['raw_data'], true);
         
+        $forwardToken = bin2hex(random_bytes(16)); // Generate unique token
+        
+        // Store token in database for verification
+        $stmt = $this->db->getPdo()->prepare(
+            "UPDATE shifts 
+             SET forward_token = ?, forward_expires_at = DATE_ADD(NOW(), INTERVAL 24 HOUR)
+             WHERE shift_uuid = ?"
+        );
+        $stmt->execute([$forwardToken, $shiftData['shift_uuid']]);
+        
         $emailData = [
             'replyTo' => [
                 'email' => 'ian@galaxon.co.uk',
@@ -173,7 +183,8 @@ class ShiftManager
                         return $diffMinutes . ' minutes late'; 
                     }
                     return 'on time';
-                })()
+                })(),
+                'link' => 'https://your-domain.com/forward/?token=' . $forwardToken
             ],
             'to' => [
                 [
