@@ -160,7 +160,7 @@ class ShiftManager
                 'employee_name' => $rawData['user_name'],
                 'venue_name' => $rawData['venue_name'],
                 'clock_in' => (new \DateTime())->setTimestamp($rawData['actual_clock_in'])->format('jS F Y h:ia'),
-                'shift' => (new \DateTime($rawData['time_from']))->format('jS F Y h:ia') . ' - ' . (new \DateTime($rawData['time_to']))->format('jS F Y h:ia')
+                'shift' => (new \DateTime($rawData['time_from']))->format('jS F Y h:ia') . ' - ' . (new \DateTime($rawData['time_to']))->format('h:ia')
             ],
             'to' => [
                 [
@@ -169,7 +169,7 @@ class ShiftManager
                     'name' => 'Control Room'
                 ]
             ],
-            'subject' => 'Officer has clocked in at',
+            'subject' => $rawData['user_name'] . ' has clocked in at ' . $rawData['venue_name'],
             'templateId' => 511
         ];
 
