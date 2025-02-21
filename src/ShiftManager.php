@@ -163,7 +163,7 @@ class ShiftManager
         
         $emailData = [
             'replyTo' => [
-                'email' => 'ian@galaxon.co.uk',
+                'email' => 'iclark@galaxon.co.uk',
                 'name' => 'Ian'
             ],
             'params' => [
