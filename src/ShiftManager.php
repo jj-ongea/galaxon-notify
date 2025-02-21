@@ -159,12 +159,13 @@ class ShiftManager
             'params' => [
                 'employee_name' => $rawData['user_name'],
                 'venue_name' => $rawData['venue_name'],
-                'clock_in' => date('Y-m-d H:i:s', $rawData['actual_clock_in']),
-                'shift' => $rawData['time_from'] . ' - ' . $rawData['time_to']
+                'clock_in' => (new \DateTime())->setTimestamp($rawData['actual_clock_in'])->format('jS F Y h:ia'),
+                'shift' => (new \DateTime($rawData['time_from']))->format('jS F Y h:ia') . ' - ' . (new \DateTime($rawData['time_to']))->format('jS F Y h:ia')
             ],
             'to' => [
                 [
-                    'email' => 'info@galaxon.co.uk',
+                    //'email' => 'info@galaxon.co.uk',
+                    'email' => 'jj@ongea.co',
                     'name' => 'Control Room'
                 ]
             ],
