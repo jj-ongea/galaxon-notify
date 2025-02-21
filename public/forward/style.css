@@ -164,4 +164,19 @@ input[type="email"] {
         margin: 1rem;
         padding: 1rem;
     }
+}
+
+select.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+}
+
+select.form-control:focus {
+    border-color: #3498db;
+    outline: none;
 } 

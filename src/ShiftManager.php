@@ -233,6 +233,14 @@ class ShiftManager
     {
         $rawData = json_decode($shiftData['raw_data'], true);
         
+        // Determine time of day greeting
+        $hour = (int)date('H');
+        $timeOfDay = match(true) {
+            $hour >= 0 && $hour < 12 => 'Good Morning',
+            $hour >= 12 && $hour < 17 => 'Good Afternoon',
+            default => 'Good Evening'
+        };
+        
         $emailData = [
             'replyTo' => [
                 'email' => 'info@galaxon.co.uk',
@@ -242,7 +250,9 @@ class ShiftManager
                 'employee_name' => $rawData['user_name'],
                 'venue_name' => $rawData['venue_name'],
                 'clock_in' => (new \DateTime())->setTimestamp($rawData['actual_clock_in'])->format('jS F Y h:ia'),
-                'shift' => (new \DateTime($rawData['time_from']))->format('jS F Y h:ia') . ' - ' . (new \DateTime($rawData['time_to']))->format('h:ia')
+                'shift' => (new \DateTime($rawData['time_from']))->format('jS F Y h:ia') . ' - ' . (new \DateTime($rawData['time_to']))->format('h:ia'),
+                'daytime' => $timeOfDay,
+                'controller' => $_POST['controller'] ?? 'Unknown'
             ],
             'to' => [
                 [

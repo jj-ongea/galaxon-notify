@@ -85,6 +85,7 @@ $shiftData = $shift ? json_decode($shift['raw_data'], true) : null;
                 <form method="post" id="confirmForm" style="display: none;">
                     <input type="hidden" name="action" value="forward">
                     <input type="hidden" name="email" value="<?= htmlspecialchars($email) ?>">
+                    <input type="hidden" name="controller" value="<?= htmlspecialchars($_POST['controller'] ?? '') ?>">
                     <input type="hidden" name="confirm" value="1">
                 </form>
             </div>
@@ -105,6 +106,18 @@ $shiftData = $shift ? json_decode($shift['raw_data'], true) : null;
                     <label for="email">Forward to Email:</label>
                     <input type="email" id="email" name="email" required disabled
                            value="<?= htmlspecialchars(Config::getInstance()->get('DEFAULT_FORWARD_EMAIL')) ?>">
+                </div>
+                <div class="form-group">
+                    <label for="controller">Controller:</label>
+                    <select id="controller" name="controller" required class="form-control">
+                        <option value="">Select Controller</option>
+                        <option value="Cornelius">Cornelius</option>
+                        <option value="Muna">Muna</option>
+                        <option value="Jude">Jude</option>
+                        <option value="John">John</option>
+                        <option value="Asif">Asif</option>
+                        <option value="Rasheel">Rasheel</option>
+                    </select>
                 </div>
                 <button type="submit" class="btn-forward">Forward Notification</button>
             </form>
