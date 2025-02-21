@@ -50,6 +50,12 @@ class ShiftManager
                 'raw_data' => $rawData
             ];
 
+            $this->logger->debug('Executing SQL', [
+                'params' => $params,
+                'actual_clock_in_exists' => isset($shiftData['actual_clock_in']),
+                'actual_clock_in_value' => $shiftData['actual_clock_in'] ?? 'null'
+            ]);
+
             $stmt->execute($params);
 
             $this->logger->debug('Shift saved successfully', [
@@ -99,7 +105,12 @@ class ShiftManager
         $shifts = $this->api->fetchShifts($startDate, $endDate);
         
         $this->logger->info('Retrieved shifts from API', [
-            'count' => count($shifts)
+            'count' => count($shifts),
+            'first_shift' => !empty($shifts) ? [
+                'shift_uuid' => $shifts[0]['shift_uuid'] ?? null,
+                'actual_clock_in' => $shifts[0]['actual_clock_in'] ?? null,
+                'raw' => $shifts[0]
+            ] : null
         ]);
         
         $successCount = 0;
@@ -107,6 +118,11 @@ class ShiftManager
         
         foreach ($shifts as $index => $shift) {
             try {
+                $this->logger->debug('Processing shift', [
+                    'shift_uuid' => $shift['shift_uuid'] ?? null,
+                    'actual_clock_in' => $shift['actual_clock_in'] ?? null,
+                    'raw' => $shift
+                ]);
                 $this->saveShift($shift);
                 $successCount++;
             } catch (\Exception $e) {
