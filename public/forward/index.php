@@ -96,14 +96,14 @@ $shiftData = $shift ? json_decode($shift['raw_data'], true) : null;
                 <p><strong>Employee:</strong> <?= htmlspecialchars($shiftData['user_name']) ?></p>
                 <p><strong>Venue:</strong> <?= htmlspecialchars($shiftData['venue_name']) ?></p>
                 <p><strong>Clock-in:</strong> <?= date('jS F Y h:ia', $shiftData['actual_clock_in']) ?></p>
-                <p><strong>Shift Time:</strong> <?= htmlspecialchars($shiftData['time_from'] . ' - ' . $shiftData['time_to']) ?></p>
+                <p><strong>Shift Time:</strong> <?= (new DateTime($shiftData['time_from']))->format('jS F Y h:ia') . ' - ' . (new DateTime($shiftData['time_to']))->format('jS F Y h:ia') ?></p>
             </div>
 
             <form method="post" class="forward-form" id="forwardForm">
                 <input type="hidden" name="action" value="forward">
                 <div class="form-group">
                     <label for="email">Forward to Email:</label>
-                    <input type="email" id="email" name="email" required 
+                    <input type="email" id="email" name="email" required disabled
                            value="<?= htmlspecialchars(Config::getInstance()->get('DEFAULT_FORWARD_EMAIL')) ?>">
                 </div>
                 <button type="submit" class="btn-forward">Forward Notification</button>
