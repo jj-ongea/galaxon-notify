@@ -3,7 +3,6 @@
 namespace ParimIntegration;
 
 use Exception;
-use Monolog\Logger;
 
 class ParimAPI
 {
