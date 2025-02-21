@@ -13,7 +13,7 @@ $startDate = date('Y-m-d 00:00:00');
 $startTimestamp = strtotime($startDate);
 
 // Set end date to 23:59:00 of the same day
-$endDate = date('Y-m-d 23:59:00');
+$endDate = date('Y-m-d 23:59:00', strtotime('tomorrow'));
 $endTimestamp = strtotime($endDate);
 
 $logger->info('Starting shift fetch', [
