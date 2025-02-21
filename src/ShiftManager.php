@@ -2,8 +2,6 @@
 
 namespace ParimIntegration;
 
-use Monolog\Logger;
-
 class ShiftManager
 {
     private $db;

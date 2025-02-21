@@ -3,7 +3,6 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use ParimIntegration\ShiftManager;
-use ParimIntegration\Logger;
 
 $logger = Logger::getLogger('fetch-script');
 $shiftManager = new ShiftManager();
