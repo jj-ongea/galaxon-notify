@@ -17,8 +17,15 @@ try {
     
     foreach ($shifts as $shift) {
         $logger->info('Processing shift', ['uuid' => $shift['shift_uuid']]);
-        // Here you would implement the secondary API call
-        // based on your requirements
+        try {
+            $shiftManager->sendClockInEmail($shift);
+        } catch (\Exception $e) {
+            $logger->error('Failed to process shift email', [
+                'uuid' => $shift['shift_uuid'],
+                'error' => $e->getMessage()
+            ]);
+            continue;
+        }
         
         $shiftManager->markShiftAsProcessed($shift['shift_uuid']);
     }

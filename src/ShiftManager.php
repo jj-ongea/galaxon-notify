@@ -7,12 +7,14 @@ class ShiftManager
     private $db;
     private $api;
     private $logger;
+    private $config;
 
     public function __construct()
     {
         $this->db = Database::getInstance();
         $this->api = new ParimAPI();
         $this->logger = Logger::getLogger('shifts');
+        $this->config = Config::getInstance();
     }
 
     public function saveShift(array $shiftData): void
@@ -142,6 +144,63 @@ class ShiftManager
             'total' => count($shifts),
             'success' => $successCount,
             'errors' => $errorCount
+        ]);
+    }
+
+    private function sendClockInEmail(array $shiftData): void
+    {
+        $rawData = json_decode($shiftData['raw_data'], true);
+        
+        $emailData = [
+            'replyTo' => [
+                'email' => 'ian@galaxon.co.uk',
+                'name' => 'Ian'
+            ],
+            'params' => [
+                'employee_name' => $rawData['user_name'],
+                'venue_name' => $rawData['venue_name'],
+                'clock_in' => date('Y-m-d H:i:s', $rawData['actual_clock_in']),
+                'shift' => $rawData['time_from'] . ' - ' . $rawData['time_to']
+            ],
+            'to' => [
+                [
+                    'email' => 'info@galaxon.co.uk',
+                    'name' => 'Control Room'
+                ]
+            ],
+            'subject' => 'Officer has clocked in at',
+            'templateId' => 511
+        ];
+
+        $ch = curl_init('https://api.brevo.com/v3/smtp/email');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => [
+                'accept: application/json',
+                'api-key: ' . $this->config->get('BREVO_API_KEY'),
+                'content-type: application/json'
+            ],
+            CURLOPT_POSTFIELDS => json_encode($emailData)
+        ]);
+
+        $response = curl_exec($ch);
+        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($error || $statusCode !== 201) {
+            $this->logger->error('Failed to send clock-in email', [
+                'error' => $error,
+                'statusCode' => $statusCode,
+                'response' => $response,
+                'shift_uuid' => $shiftData['shift_uuid']
+            ]);
+            throw new \RuntimeException('Failed to send clock-in email');
+        }
+
+        $this->logger->info('Clock-in email sent successfully', [
+            'shift_uuid' => $shiftData['shift_uuid']
         ]);
     }
 } 
