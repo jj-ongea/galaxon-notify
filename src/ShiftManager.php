@@ -188,8 +188,8 @@ class ShiftManager
             ],
             'to' => [
                 [
-                    //'email' => 'info@galaxon.co.uk',
-                    'email' => 'jj@ongea.co',
+                    'email' => 'info@galaxon.co.uk',
+                    //'email' => 'jj@ongea.co',
                     'name' => 'Control Room'
                 ]
             ],
