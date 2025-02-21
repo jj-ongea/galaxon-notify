@@ -184,7 +184,7 @@ class ShiftManager
                     }
                     return 'on time';
                 })(),
-                'link' => 'https://your-domain.com/forward/?token=' . $forwardToken
+                'link' => 'https://galaxon.co.uk/notify/forward/?token=' . $forwardToken
             ],
             'to' => [
                 [
