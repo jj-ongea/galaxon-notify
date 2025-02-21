@@ -233,6 +233,12 @@ class ShiftManager
     {
         $rawData = json_decode($shiftData['raw_data'], true);
         
+        $this->logger->info('Starting to forward email', [
+            'shift_uuid' => $shiftData['shift_uuid'],
+            'forward_email' => $forwardEmail,
+            'controller' => $_POST['controller'] ?? 'Unknown'
+        ]);
+        
         // Determine time of day greeting
         $hour = (int)date('H');
         $timeOfDay = match(true) {
@@ -264,6 +270,10 @@ class ShiftManager
             'templateId' => 512
         ];
 
+        $this->logger->debug('Email data prepared', [
+            'emailData' => $emailData
+        ]);
+
         $ch = curl_init('https://api.brevo.com/v3/smtp/email');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
@@ -282,8 +292,19 @@ class ShiftManager
         curl_close($ch);
 
         if ($error || $statusCode !== 201) {
+            $this->logger->error('Failed to forward email', [
+                'error' => $error,
+                'statusCode' => $statusCode,
+                'response' => $response,
+                'shift_uuid' => $shiftData['shift_uuid']
+            ]);
             throw new \RuntimeException('Failed to forward email: ' . ($error ?: $response));
         }
+
+        $this->logger->info('Email forwarded successfully', [
+            'shift_uuid' => $shiftData['shift_uuid'],
+            'forward_email' => $forwardEmail
+        ]);
 
         // Update the database to record the forward
         $stmt = $this->db->getPdo()->prepare(
