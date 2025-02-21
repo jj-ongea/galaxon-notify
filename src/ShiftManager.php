@@ -147,7 +147,7 @@ class ShiftManager
         ]);
     }
 
-    private function sendClockInEmail(array $shiftData): void
+    public function sendClockInEmail(array $shiftData): void
     {
         $rawData = json_decode($shiftData['raw_data'], true);
         
